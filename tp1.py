@@ -15,8 +15,8 @@ import math
 # aproximacion al autovalor obtenida en el paso i.
 
 def producto_matriz_k_veces(A, k):
-    B = A@A
-    i = 2
+    B = A
+    i = 1
     while (i < k) :
         B = B@A
         i = i+1
@@ -25,26 +25,29 @@ def producto_matriz_k_veces(A, k):
 def cociente_rayleigh(x,A):
     num = x @ A @ x
     den = x @ x
-    return num/den    
+    return np.round(num/den)    
 
 def vector_random(long):
     v = np.random.rand(long)
     return v
 
+# A = matriz a la que le va a calcular los autovalores
 A = np.array([[-2.,0,0],[0,-5.,6.],[0,-3.,4.]])
-B2 = producto_matriz_k_veces(A, 50)
-v1 = vector_random(B.shape[0])
 
-a1 = cociente_rayleigh(B2@v1 , B2)
+# el resultado de multiplicar k veces a la matriz A
+B2 = producto_matriz_k_veces(A, 50)
+
+# vector random de la longitud de los vectores de la matriz inicial
+v1 = vector_random(B2.shape[0])
+
+# || A^k * v1 ||2
+norma = np.linalg.norm(B2@v1,2)
+
+
+autovector = (B2@v1)/norma
+
+a1 = cociente_rayleigh(autovector , A)
 print(a1)
 
 
-#print( np.linalg.eigvals(B))
-
-
-# A = matriz a la que le va a calcular los autovalores
-
-
-
-
-#%% EJERCICIO 2
+print( np.linalg.eigvals(A))
