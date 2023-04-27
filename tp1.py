@@ -27,10 +27,6 @@ def cociente_rayleigh(x,A):
     den = x @ x
     return np.round(num/den)    
 
-def vector_random_long_k(long):
-    v = np.random.rand(long)
-    return v
-
 def autovector_generado(matriz, vect):
     prod = matriz@vect
     # || A^k * v1 ||2
@@ -39,27 +35,24 @@ def autovector_generado(matriz, vect):
     return prod/norma
     
 
+
+def generar_autovalor(M, v):
+    # el resultado de multiplicar k veces a la matriz A
+    B2 = producto_matriz_k_veces(M, 50)
+    # calculo del autovector
+    autovector1 = autovector_generado(B2, v)
+    
+    a1 = cociente_rayleigh(autovector1 , M)
+    return a1;
+
+
 # A = matriz a la que le va a calcular los autovalores
 A = np.array([[-2.,0,0],[0,-5.,6.],[0,-3.,4.]])
 
-# el resultado de multiplicar k veces a la matriz A
-B2 = producto_matriz_k_veces(A, 50)
-
 # vector random de la longitud de los vectores de la matriz inicial
-v1 = vector_random_long_k(B2.shape[0])
+v1 = np.random.rand(A.shape[0])
 
-# calculo del autovector
-autovector1 = autovector_generado(B2, v1)
+print(generar_autovalor(A,v1))
 
-a1 = cociente_rayleigh(autovector1 , A)
-print(a1)
-
-
+# para verificar
 print( np.linalg.eigvals(A))
-
-
-#%% EJERCICIO 2
-
-
-#%% EJERCICIO 3
-
