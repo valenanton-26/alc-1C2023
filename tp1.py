@@ -108,5 +108,20 @@ def generarMatrices(n):
     D = generarMatrizTipoD(B)
     return A, B, C, D
 
+
 # Item A
 
+Matrices = generarMatrices(100)
+v = np.random.rand(Matrices[0].shape[0])
+
+A = Matrices[0]
+casoA = generar_vector(A, v, 100)
+
+B = Matrices[1]
+casoB = generar_vector(B, v, 100)
+
+C = Matrices[2]
+casoC = generar_vector(C, v, 100)
+
+D = Matrices[3]
+casoD = generar_vector(D, v, 100)
