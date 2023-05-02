@@ -154,6 +154,25 @@ plt.ylabel('Aprox. del autovalor')
 plt.show()
 plt.close()
 
+# Item b
+
+# Al comparar lo obtenido para la matriz A y la matriz B, en la primera se observa una importante
+# variacion en los valores obtenidos para los autovalores usando el metodo de la potencia, 
+# esto puede deberse a que todos los numeros de la matriz son random. Mientras que para la 
+# matriz B, una matriz simetrica, los autovalores conseguidos terminan siendo muy similares.
+# Despues, para las matrices C y D, estas son derivadas de B (son simetricas), y como se le
+# suma 100 y 1000 a las diagonales respectivamente, eso se ve reflejado en los graficos para
+# sus autovalores calculados. Las 3 funciones son muy similares entre si, lo que cambia 
+# principalmente son los valores del eje y en los que se encuentran, que coincidentemente
+# terminan siendo los de B, sumando 100 y 1000 en cada caso.
+
+# Item c
+
+# Se podria decir que si en los casos de las matrices B, C y D. En estos se puede ver que a
+# partir de la iteracion 20 los valores estan muy cerca del que se observa que termina convergiendo
+# el grafico. Y en la matriz A hay mas variacion, pero dentro de un mismo rango de valores, 
+# antes de converger.
+
 #EJERCICIO 3
 
 #Defino una función que, dada una matriz, devuelve su autovalor de mayor módulo
