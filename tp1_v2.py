@@ -72,12 +72,12 @@ print(v)
 #EJERCICIO 2
 
 def generarMatrizTipoA(n):
-    A = np.random.randn(n,n)
+    A = np.random.rand(n,n)
     # genera una matriz de elementos reales aleatorios, de forma nxn
     return A
 
 def generarMatrizTipoB(n):
-    B = np.random.randn(n,n)
+    B = np.random.rand(n,n)
     i  = 0
     while i < (n-1):
         j = i+1
