@@ -109,69 +109,41 @@ def generarMatrices(n):
     return A, B, C, D
 
 
-# Item A
-
 Matrices = generarMatrices(100)
 v = np.random.rand(Matrices[0].shape[0])
-#Para graficar, creo una lista con todos los números de cada una de las iteraciones
-iteraciones = list(range(0, 101)) 
 
+def grafico_aproximaciones (M, titulo):
+    #Para graficar, creo una lista con todos los números de cada una de las iteraciones
+    iteraciones = list(range(0, 101))
+    
+    aproximaciones_M = vector_autovalores(M, v, 100)
+    plt.plot(iteraciones, aproximaciones_M, color = 'b')
+    plt.title(titulo)
+    plt.xlabel('Número de iteraciones')
+    plt.ylabel('Aprox. del autovalor')
+    plt.show()
+    plt.close()
+
+#Caso A
 A = Matrices[0]
-aproximaciones_A = vector_autovalores(A, v, 100)
-plt.plot(iteraciones, aproximaciones_A, color = 'b')
-plt.title('Matriz tipo A')
-plt.xlabel('Número de iteraciones')
-plt.ylabel('Aprox. del autovalor')
-plt.show()
-plt.close()
+grafico_aproximaciones(A, 'Matriz tipo A')
 
+#Caso B
 B = Matrices[1]
-aproximaciones_B = vector_autovalores(B, v, 100)
-plt.plot(iteraciones, aproximaciones_B, color = 'b')
-plt.title('Matriz tipo B')
-plt.xlabel('Número de iteraciones')
-plt.ylabel('Aprox. del autovalor')
-plt.show()
-plt.close()
+grafico_aproximaciones(B, 'Matriz tipo B')
 
+#Caso C
 C = Matrices[2]
-aproximaciones_C = vector_autovalores(C, v, 100)
-plt.plot(iteraciones, aproximaciones_C, color = 'b')
-plt.title('Matriz tipo C')
-plt.xlabel('Número de iteraciones')
-plt.ylabel('Aprox. del autovalor')
-plt.show()
-plt.close()
+grafico_aproximaciones(C, 'Matriz tipo C')
 
+#Caso D
 D = Matrices[3]
-aproximaciones_D = vector_autovalores(D, v, 100)
-plt.plot(iteraciones, aproximaciones_D, color = 'b')
-plt.title('Matriz tipo D')
-plt.xlabel('Número de iteraciones')
-plt.ylabel('Aprox. del autovalor')
-plt.show()
-plt.close()
+grafico_aproximaciones(D, 'Matriz tipo D')
 
-# Item b
-
-# Al comparar lo obtenido para la matriz A y la matriz B, en la primera se observa una importante
-# variacion en los valores obtenidos para los autovalores usando el metodo de la potencia, 
-# esto puede deberse a que todos los numeros de la matriz son random. Mientras que para la 
-# matriz B, una matriz simetrica, los autovalores conseguidos terminan siendo muy similares.
-# Despues, para las matrices C y D, estas son derivadas de B (son simetricas), y como se le
-# suma 100 y 1000 a las diagonales respectivamente, eso se ve reflejado en los graficos para
-# sus autovalores calculados. Las 3 funciones son muy similares entre si, lo que cambia 
-# principalmente son los valores del eje y en los que se encuentran, que coincidentemente
-# terminan siendo los de B, sumando 100 y 1000 en cada caso.
-
-# Item c
-
-# Se podria decir que si en los casos de las matrices B, C y D. En estos se puede ver que a
-# partir de la iteracion 20 los valores estan muy cerca del que se observa que termina convergiendo
-# el grafico. Y en la matriz A hay mas variacion, pero dentro de un mismo rango de valores, 
-# antes de converger.
 
 #EJERCICIO 3
+
+#Defino una función que, dada una matriz, devuelve su autovalor de mayor módulo
 
 #Defino una función que, dada una matriz, devuelve su autovalor de mayor módulo
 
@@ -189,27 +161,18 @@ def autovalor_max (A):
     res = max(mod_autovalores)
     return res
 
-#Este ejemplo devuelve 3,00..4 en vez de 3 (la función abs devuelve los números como punto flotante). 
-#Preguntar si se debería redondear o dejar así
-"""
-prueba = np.array([[1, 2, 0], [2, 1, 0], [4, 1, 0]])
-a = np.linalg.eigvals(prueba)
-print(a)
-v = autovalor_max(prueba)
-print(v)
-"""
 
 #función que, dado un autovalor y una aproximación, calcula el valor del error como se encuentra definido en la consigna
 def error(autov, aprox):
     e = abs(autov - aprox)
     return e
 
-#función que, dado una autovalor y una lista l de aproximaciones, devuelve una lista r tal que,
+#función que, dado una autovalor y un vector v de aproximaciones, devuelve un vector r tal que,
 #r[i] representa el error correspondiente a la aproximación l[i]
-def vector_errores(autov, lista):
+def vector_errores(autov, vector):
     res = np.array([])
-    for l in lista:
-        e = error(autov, l)
+    for elem in vector:
+        e = error(autov, elem)
         res = np.append(res, e)
     return res
 
@@ -217,113 +180,52 @@ def vector_errores(autov, lista):
 def log_en_base_10 (vector):
     res = []
     for elemento in vector:
-        log = np.log10(elemento)
-        res.append(log)
+        logElem = np.log10(elemento)
+        res.append(logElem)
     return res
     
 #ITEM A y B
 
-#Para graficar, defino como eje x la lista con todos los números de cada una de las iteraciones realizadas
-x = np.linspace(0, 100, 101)
-
+def grafico_errores(M, titulo):
+    #Para graficar, defino como eje x la lista con todos los números de cada una de las iteraciones realizadas
+    x = np.linspace(0, 100, 101)
+    
+    #Calculo errores
+    aproximaciones_M = vector_autovalores(M, v, 100)
+    errores_M = vector_errores(autovalor_max(M), aproximaciones_M)
+    log_errores_M = log_en_base_10(errores_M) #calculo el logaritmo en base 10 de cada uno de los errores obtenidos
+    
+    #Calculamos el vector formado por el módulo de autovalores de A y ordenamos sus elementos de mayor a menor
+    modulo_autovalores_M = valores_absolutos(np.linalg.eigvals(M))
+    modulo_autovalores_M = sorted(modulo_autovalores_M, reverse=True)
+    
+    #Ahora definimos la función
+    autov1 = modulo_autovalores_M[0]
+    autov2 = modulo_autovalores_M[1]
+    f = 2 * np.log10(autov2/autov1) * x + np.log10(errores_M[0])
+    
+    #Grafico
+    fig, ax = plt.subplots()
+    ax.plot(x, log_errores_M, label = 'Error Matriz', color = 'b')
+    ax.plot(x, f, label = 'Función', color = 'r')
+    ax.set_xlabel('Número de iteraciones')
+    ax.set_ylabel('Error')
+    ax.set_title(titulo)
+    
+    ax.legend()
+    
+    plt.show()
+    plt.close()
 
 #Caso A
-errores_A = vector_errores(autovalor_max(A), aproximaciones_A) #creo el vector con sus respectivos errores
-log_errores_A = log_en_base_10(errores_A) #calculo el logaritmo en base 10 de cada uno de los errores obtenidos
-
-#Calculamos el vector formado por el módulo de autovalores de A y ordenamos sus elementos de mayor a menor
-modulo_autovalores_A = valores_absolutos(np.linalg.eigvals(A))
-modulo_autovalores_A = sorted(modulo_autovalores_A, reverse=True)
-
-#Ahora defino la función
-autov1_A = modulo_autovalores_A[0]
-autov2_A = modulo_autovalores_A[1]
-funcion_A = 2 * np.log10(autov2_A/autov1_A) * x + np.log10(errores_A[0])
-
-fig, ax = plt.subplots()
-ax.plot(x, log_errores_A, label = 'Error Matriz A', color = 'b')
-ax.plot(x, funcion_A, label = 'Función', color = 'r')
-ax.set_xlabel('Número de iteraciones')
-ax.set_ylabel('Error')
-ax.set_title('Error en matrices de tipo A')
-
-ax.legend()
-
-plt.show()
-plt.close()
+grafico_errores(A, 'Error en matrices de tipo A')
 
 #Caso B
-errores_B = vector_errores(autovalor_max(B), aproximaciones_B)
-log_errores_B = log_en_base_10(errores_B)
+grafico_errores(B, 'Error en matrices de tipo B')
 
-#Calculamos el vector formado por el módulo de autovalores de B y ordenamos sus elementos de mayor a menor
-modulo_autovalores_B = valores_absolutos(np.linalg.eigvals(B))
-modulo_autovalores_B = sorted(modulo_autovalores_B, reverse=True)
-
-#Ahora defino la función
-autov1_B = modulo_autovalores_B[0]
-autov2_B = modulo_autovalores_B[1]
-funcion_B = 2 * np.log10(autov2_B/autov1_B) * x + np.log10(errores_B[0])
-
-fig, ax = plt.subplots()
-ax.plot(x, log_errores_B, label = 'Error Matriz B', color = 'b')
-ax.plot(x, funcion_B, label = 'Función', color = 'r')
-ax.set_xlabel('Número de iteraciones')
-ax.set_ylabel('Error')
-ax.set_title('Error en matrices de tipo B')
-
-ax.legend()
-
-plt.show()
-plt.close()
-
-#Caso C
-errores_C = vector_errores(autovalor_max(C), aproximaciones_C)
-log_errores_C = log_en_base_10(errores_C)
-
-#Calculamos el vector formado por el módulo de autovalores de C y ordenamos sus elementos de mayor a menor
-modulo_autovalores_C = valores_absolutos(np.linalg.eigvals(C))
-modulo_autovalores_C = sorted(modulo_autovalores_C, reverse=True)
-
-#Ahora defino la función
-autov1_C = modulo_autovalores_C[0]
-autov2_C = modulo_autovalores_C[1]
-funcion_C = 2 * np.log10(autov2_C/autov1_C) * x + np.log10(errores_C[0])
-
-fig, ax = plt.subplots()
-ax.plot(x, log_errores_C, label = 'Error Matriz C', color = 'b')
-ax.plot(x, funcion_C, label = 'Función', color = 'r')
-ax.set_xlabel('Número de iteraciones')
-ax.set_ylabel('Error')
-ax.set_title('Error en matrices de tipo C')
-
-ax.legend()
-
-plt.show()
-plt.close()
+#Caso A
+grafico_errores(C, 'Error en matrices de tipo C')
 
 #Caso D
-errores_D = vector_errores(autovalor_max(D), aproximaciones_D)
-log_errores_D = log_en_base_10(errores_D)
-
-#Calculamos el vector formado por el módulo de autovalores de D y ordenamos sus elementos de mayor a menor
-modulo_autovalores_D = valores_absolutos(np.linalg.eigvals(D))
-modulo_autovalores_D = sorted(modulo_autovalores_D, reverse=True)
-
-#Ahora defino la función
-autov1_D = modulo_autovalores_D[0]
-autov2_D = modulo_autovalores_D[1]
-funcion_D = 2 * np.log10(autov2_D/autov1_D) * x + np.log10(errores_D[0])
-
-fig, ax = plt.subplots()
-ax.plot(x, log_errores_D, label = 'Error Matriz D', color = 'b')
-ax.plot(x, funcion_D, label = 'Función', color = 'r')
-ax.set_xlabel('Número de iteraciones')
-ax.set_ylabel('Error')
-ax.set_title('Error en matrices de tipo D')
-
-ax.legend()
-
-plt.show()
-plt.close()
+grafico_errores(D, 'Error en matrices de tipo D')
 
