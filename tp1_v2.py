@@ -23,12 +23,10 @@ def producto_matriz_k_veces(A, k): #se asume k>0
 #esta función realiza k iteraciones del método de la potencia con A y v
 def metodo_de_la_potencia(A, v, k):
     res = v.copy()
-    i = 1 
-    while i<=k:
-        matriz = producto_matriz_k_veces(A, i)
+    if k>=1:
+        matriz = producto_matriz_k_veces(A, k)
         Av = matriz@res
-        res = Av/np.linalg.norm(res, 2)
-        i+=1
+        res = Av/np.linalg.norm(Av, 2)
     return res
 
 #Dada una matriz cuadrada A de nxn y v vector de longitud n, esta función calcula el cociente de Rayleigh
