@@ -149,3 +149,200 @@ e = errores(test_reducido, predicciones)
 imagen(46, test_reducido)
 p = prediccion(matriz_promedios, test_reducido, 46)
 print(p)
+
+"""
+EJERCICIO 3
+"""
+
+#Implemetar una funcion en Python que dada una matriz A halle la descomposicion SVD de A,
+# por el metodo de la potencia.
+
+# funcion que calcula la matriz B para poder hallar la SVD de la pasada por parametro
+def matriz_B(A):
+    A_transpuesta = A.T  #transpongo la matriz inicial
+    B = A_transpuesta @ A #producto matricial entre la transpuesta y la original
+    return B
+
+
+# funcion que devuelve un vector normalizado
+def normalizar_vector(x):
+    norma = np.linalg.norm(x)
+    return x/norma
+
+
+# funcion para crear un vector random de norma 1 y de tamaño n
+# -> n : cantidad de columnas que tiene la matriz pasada por parametro
+def vector_aleatorio_unitario(B):
+    x = np.random.rand(B[0].shape[0])
+    
+    return normalizar_vector(x)
+    
+
+# calculo el primer autovector de la matriz A, usando metodo de la potencia
+def primer_autovector(A):
+    B = matriz_B(A)
+    x0 = vector_aleatorio_unitario(B) #nuestro x_(k)
+    
+    x1 = B @ x0
+    x1 = normalizar_vector(x1) # nuestro x_(k+1)
+
+    k = 0
+    # x1@x0 < 1 => esta condicion de corte esta dada en el apunte
+    # se agrega el k<50 por si la primera no se cumple, y se elije un numero grande para que la aproximacion sea buena
+    while(x1@x0 < 1 and k<50): #(x^t_(k+1) * x_(k) < (1 - e))
+        #calculo el x que sigue
+        x2 = B @ x1
+        x2 = normalizar_vector(x2)
+        
+        # reasigno las variables que conozco con la info anterior
+        x0 = x1
+        x1 = x2
+        
+        k += 1
+    
+    return x1
+        
+
+# calculo el autovalor mas grande de la matriz A y el u1, 
+# usando el primer autovector de A, calculado con el metodo de la potencia
+def primer_theta_u(A):
+    v1 = primer_autovector(A)
+    
+    o1 = np.linalg.norm(A@v1) #el autovalor
+    u1 = normalizar_vector(A@v1)
+    return o1, u1
+
+
+# funcion para calcular A' y con esta encontrar la informacion restante para la descomposicion
+def a_prima(A, v1, o1, u1):
+        
+    u11 = np.array(u1).reshape(u1.shape[0], 1)
+    v11 = np.array(v1).reshape(1,v1.shape[0])
+    
+    A_prima = A - o1*(u11@v11)
+    return A_prima
+
+# funcion para extender mi matriz M, para que sea una matriz cuadrada y que sus vectores
+# sean una b.o.n. del espacio que genera
+def extender_matriz(M, m, n):
+    fil = M.shape[0]
+    col = M.shape[1]
+    
+    # si necesito agregarle filas
+    while(fil<m):
+        b1 = vector_ortonormal(M)
+        M = np.append(M, b1)
+        fil += 1
+    
+    # si necesito agregarle columnas
+    if(col<n):
+        print(M)
+        M = M.T  #primero traspongo para trabajar mejor
+        while(col<n):
+            b1 = vector_ortonormal(M)
+            M = np.append(M, b1)
+            col += 1
+        print(M)
+        M = M.T #devuelvo a la orientacion original
+        print(M)
+    return M
+    
+# funcion para calcular un vector ortogonal a los existentes (metodo gram-shmidt)
+def vector_ortonormal(M):
+    
+    # creo un vector random del tamaño necesario
+    z = vector_aleatorio_unitario(M)
+    # un vector de ceros para ir almacenando mis proyecciones
+    v = np.zeros(M.shape[1])
+    
+    for i in range(0,M.shape[0],1):
+        # voy calculando las proyecciones con todos los vectores en M
+        v = v + (M[i] @ z)/(M[i]@M[i])*M[i]
+    
+    # el vector ortogonal sera la resta entre el original y sus proyecciones en los vectores de M
+    v_0 = z - v
+
+    return v_0
+
+
+# funcion que calcula las matrices U, E y V, necesarias para obtener la descomposicion
+# SVD de la matriz pasada por parametro
+def descomposicion_SVD(A):
+    U = np.array([])
+    E = np.zeros(A.shape) #matriz de ceros del mismo tamaño que A
+    V = np.array([])
+    
+    fil = A.shape[0] 
+    col = A.shape[1]
+    
+    menor = 0
+    
+    if(fil >= col):
+        menor = col
+    else:
+        menor = fil
+    
+    # realizo el metodo conocido para el valor menor de filas o columnas
+    for i in range(0, menor, 1):
+        u1 = primer_theta_u(A)[1]
+        o1 = primer_theta_u(A)[0]
+        v1 = primer_autovector(A)
+        
+        
+        U = np.append(U, u1) #agrego el vector calculado a U
+        E[i][i] = o1    # modifico la diagonal ii con el avalor hallado
+        V = np.append(V, v1) #agrego el autovector calculado a V
+        
+        A = a_prima(A, v1, o1, u1)   # para aplicar el metodo de nuevo debo renombrar A con A'
+    
+    
+    # hay que ver cual de las dos matrices (U o V) hay que rellenar con vectores
+    if(fil > col):
+        V = V.reshape(col, col)
+        
+        # a U le faltan vectores
+        U = U.reshape(col, fil)
+        U = extender_matriz(U, fil, fil)
+        U = U.reshape(fil, fil)
+        U = U.T
+        
+    elif (fil < col):
+        # a V le faltan vectores
+        V = V.reshape(fil, col)
+        V = extender_matriz(V, col, col)
+        V = V.reshape(col, col)
+        
+        U = U.reshape(fil, fil)
+    
+    V = V.T
+    # devolvemos las metrices calculadas
+    return U, E, V
+
+
+    
+"""
+#UN EJEMPLO 
+
+# m < n
+A = np.array([[3,2,2],[2,3,-2]])
+
+U = descomposicion_SVD(A)[0]
+E = descomposicion_SVD(A)[1]
+V = descomposicion_SVD(A)[2]
+V_tr = V.T
+
+# para verificar que el producto entre las matrices de la descomposicion forma A
+A_resul = U @ E @ V_tr
+
+# m > n
+A = np.array([[1,1],[1,0],[0,1]])
+
+U = descomposicion_SVD(A)[0]
+E = descomposicion_SVD(A)[1]
+V = descomposicion_SVD(A)[2]
+V_tr = V.T
+
+# para verificar que el producto entre las matrices de la descomposicion forma A
+A_resul = U @ E @ V_tr
+
+"""
