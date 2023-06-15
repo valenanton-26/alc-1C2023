@@ -346,3 +346,76 @@ V_tr = V.T
 A_resul = U @ E @ V_tr
 
 """
+"""
+EJERICIO 4
+"""
+
+#ITEM A
+
+#Defino una función que, dado un DataFrame, remueve la primera columna
+def sacar_primera_columna(df):
+    res = df.iloc[:, 1:]
+    return res
+
+#Defino el df de cada uno de los dígitos y aplico la función.
+#Luego lo transformo a matriz y lo agrego en la lista
+
+matrices_digitos = []
+
+df_0 = sacar_primera_columna(df_digito(0, datos_reducidos))
+matrices_digitos.append(np.array(df_0))
+
+df_1 = sacar_primera_columna(df_digito(1, datos_reducidos))
+matrices_digitos.append(np.array(df_1))
+
+df_2 = sacar_primera_columna(df_digito(2, datos_reducidos))
+matrices_digitos.append(np.array(df_2))
+
+df_3 = sacar_primera_columna(df_digito(3, datos_reducidos))
+matrices_digitos.append(np.array(df_3))
+
+df_4 = sacar_primera_columna(df_digito(4, datos_reducidos))
+matrices_digitos.append(np.array(df_4))
+
+df_5 = sacar_primera_columna(df_digito(5, datos_reducidos))
+matrices_digitos.append(np.array(df_5))
+
+df_6 = sacar_primera_columna(df_digito(6, datos_reducidos))
+matrices_digitos.append(np.array(df_6))
+
+df_7 = sacar_primera_columna(df_digito(7, datos_reducidos))
+matrices_digitos.append(np.array(df_7))
+
+df_8 = sacar_primera_columna(df_digito(8, datos_reducidos))
+matrices_digitos.append(np.array(df_8))
+
+df_9 = sacar_primera_columna(df_digito(9, datos_reducidos))
+matrices_digitos.append(np.array(df_9))
+
+
+#ITEM B
+
+#Dada una lista de matrices, devuelve 3 listas con las matrices correspondientes
+#a la descomposición de cada una de ellas
+
+def svd_lista(lista):
+    lista_U = []
+    lista_E = []
+    lista_V = []
+    for matriz in lista:
+        descomposicion = descomposicion_SVD(matriz)
+        U = descomposicion[0]
+        lista_U.append(U)
+        
+        E = descomposicion[1]
+        lista_E.append(E)
+        
+        V = descomposicion[2]
+        lista_V.append(V)
+        
+    return lista_U, lista_E, lista_V
+
+#ITEM C
+
+matriz_0 = matrices_digitos[0]
+desc = descomposicion_SVD(matriz_0)
