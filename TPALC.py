@@ -4,13 +4,20 @@ Editor de Spyder
 
 Este es un archivo temporal.
 """
+
+# -*- coding: utf-8 -*-
+"""
+Editor de Spyder
+
+Este es un archivo temporal.
+"""
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 encabezado = np.arange(0, 785, 1)
-datos = pd.read_csv("~/Downloads/mnist_train.csv", names=encabezado)
-df_testeo = datos = pd.read_csv("~/Downloads/mnist_test.csv", names=encabezado)
+datos = pd.read_csv("~/Descargas/mnist_train.csv", names=encabezado)
+df_testeo = datos = pd.read_csv("~/Descargas/mnist_test.csv", names=encabezado)
 
 """
 EJERCICIO 1
@@ -174,7 +181,7 @@ def normalizar_vector(x):
 # -> n : cantidad de columnas que tiene la matriz pasada por parametro
 def vector_aleatorio_unitario(B):
     x = np.random.rand(B[0].shape[0])
-    
+    primer_theta_u
     return normalizar_vector(x)
     
 
@@ -200,16 +207,14 @@ def primer_autovector(A):
         
         k += 1
     
-    return x1
-        
-
-# calculo el autovalor mas grande de la matriz A y el u1, 
+    return normalizar_vector(x1)
+         
+#calculo el autovalor mas grande de la matriz A y el u1, 
 # usando el primer autovector de A, calculado con el metodo de la potencia
-def primer_theta_u(A):
-    v1 = primer_autovector(A)
+def primer_theta_u(A , v):
     
-    o1 = np.linalg.norm(A@v1) #el autovalor
-    u1 = normalizar_vector(A@v1)
+    o1 = np.linalg.norm(A@v) #el autovalor
+    u1 = normalizar_vector(A@v)
     return o1, u1
 
 
@@ -222,29 +227,26 @@ def a_prima(A, v1, o1, u1):
     A_prima = A - o1*(u11@v11)
     return A_prima
 
-# funcion para extender mi matriz M, para que sea una matriz cuadrada y que sus vectores
-# sean una b.o.n. del espacio que genera
-def extender_matriz(M, m, n):
+#Funcion que, dada una matriz M y un valor n, extiende M a una matriz cuadrada de tamaño n
+#con sus vectores siendo una b.o.n del espacio que genera
+def extender_matriz(M, n):
     fil = M.shape[0]
     col = M.shape[1]
     
     # si necesito agregarle filas
-    while(fil<m):
+    while(fil<n):
         b1 = vector_ortonormal(M)
-        M = np.append(M, b1)
+        M = np.vstack((M, b1))
         fil += 1
     
     # si necesito agregarle columnas
     if(col<n):
-        print(M)
         M = M.T  #primero traspongo para trabajar mejor
         while(col<n):
             b1 = vector_ortonormal(M)
-            M = np.append(M, b1)
+            M = np.vstack((M, b1))
             col += 1
-        print(M)
         M = M.T #devuelvo a la orientacion original
-        print(M)
     return M
     
 # funcion para calcular un vector ortogonal a los existentes (metodo gram-shmidt)
@@ -261,10 +263,10 @@ def vector_ortonormal(M):
     
     # el vector ortogonal sera la resta entre el original y sus proyecciones en los vectores de M
     v_0 = z - v
-
     return v_0
 
-
+# funcion para extender mi matriz M, parprimer_theta_ua que sea una matriz cuadrada y que sus vectores
+# sean una b.o.n. del espacio que genera
 # funcion que calcula las matrices U, E y V, necesarias para obtener la descomposicion
 # SVD de la matriz pasada por parametro
 def descomposicion_SVD(A):
@@ -284,9 +286,10 @@ def descomposicion_SVD(A):
     
     # realizo el metodo conocido para el valor menor de filas o columnas
     for i in range(0, menor, 1):
-        u1 = primer_theta_u(A)[1]
-        o1 = primer_theta_u(A)[0]
         v1 = primer_autovector(A)
+        u1 = primer_theta_u(A, v1)[1]
+        o1 = primer_theta_u(A, v1)[0]
+        
         
         
         U = np.append(U, u1) #agrego el vector calculado a U
@@ -302,16 +305,14 @@ def descomposicion_SVD(A):
         
         # a U le faltan vectores
         U = U.reshape(col, fil)
-        U = extender_matriz(U, fil, fil)
-        U = U.reshape(fil, fil)
+        U = extender_matriz(U, fil)
         U = U.T
         
     elif (fil < col):
         # a V le faltan vectores
         V = V.reshape(fil, col)
-        V = extender_matriz(V, col, col)
-        V = V.reshape(col, col)
-        
+        V = extender_matriz(V, col)
+
         U = U.reshape(fil, fil)
     
     V = V.T
@@ -357,41 +358,19 @@ def sacar_primera_columna(df):
     res = df.iloc[:, 1:]
     return res
 
-#Defino el df de cada uno de los dígitos y aplico la función.
-#Luego lo transformo a matriz y lo agrego en la lista
+#Funcion que dado un dataset, genera un array conteniendo las 10 matrices con la información de las imágenes
+#correspondiente a cada uno de los dígitos
+def matrices_digitos(datos):
+    matrices_digitos = []
+    for i in range(0, 10, 1):
+        df = sacar_primera_columna(df_digito(i, datos_reducidos))
+        matriz = np.array(df)
+        matrices_digitos.append(matriz)
+        
+    return matrices_digitos
 
-matrices_digitos = []
 
-df_0 = sacar_primera_columna(df_digito(0, datos_reducidos))
-matrices_digitos.append(np.array(df_0))
-
-df_1 = sacar_primera_columna(df_digito(1, datos_reducidos))
-matrices_digitos.append(np.array(df_1))
-
-df_2 = sacar_primera_columna(df_digito(2, datos_reducidos))
-matrices_digitos.append(np.array(df_2))
-
-df_3 = sacar_primera_columna(df_digito(3, datos_reducidos))
-matrices_digitos.append(np.array(df_3))
-
-df_4 = sacar_primera_columna(df_digito(4, datos_reducidos))
-matrices_digitos.append(np.array(df_4))
-
-df_5 = sacar_primera_columna(df_digito(5, datos_reducidos))
-matrices_digitos.append(np.array(df_5))
-
-df_6 = sacar_primera_columna(df_digito(6, datos_reducidos))
-matrices_digitos.append(np.array(df_6))
-
-df_7 = sacar_primera_columna(df_digito(7, datos_reducidos))
-matrices_digitos.append(np.array(df_7))
-
-df_8 = sacar_primera_columna(df_digito(8, datos_reducidos))
-matrices_digitos.append(np.array(df_8))
-
-df_9 = sacar_primera_columna(df_digito(9, datos_reducidos))
-matrices_digitos.append(np.array(df_9))
-
+matrices_digitos = matrices_digitos(datos_reducidos)
 
 #ITEM B
 
@@ -417,5 +396,26 @@ def svd_lista(lista):
 
 #ITEM C
 
-matriz_0 = matrices_digitos[0]
+#Dada una matriz de 784 filas y un n, la función grafica la imagen generada por la columna n de la matriz
+def graficar_columna(V, n):
+    columna = V[:, n].reshape(28, 28)
+    
+    plt.imshow(columna, cmap='gray')
+    plt.title('Gráfico de columna ')
+    plt.show()
+    plt.close()
+    
+    
+matriz_0 = matrices_digitos[0].T
 desc = descomposicion_SVD(matriz_0)
+U_0 = desc[0]
+E_0 = desc[1]
+V_0 = desc[2]
+V_T = V_0.T
+
+M = U_0 @ E_0 @ V_T
+
+
+
+
+graficar_columna(U_0, 1)
