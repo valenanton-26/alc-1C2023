@@ -4,13 +4,6 @@ Editor de Spyder
 
 Este es un archivo temporal.
 """
-
-# -*- coding: utf-8 -*-
-"""
-Editor de Spyder
-
-Este es un archivo temporal.
-"""
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -181,7 +174,7 @@ def normalizar_vector(x):
 # -> n : cantidad de columnas que tiene la matriz pasada por parametro
 def vector_aleatorio_unitario(B):
     x = np.random.rand(B[0].shape[0])
-    primer_theta_u
+    
     return normalizar_vector(x)
     
 
@@ -259,7 +252,7 @@ def vector_ortonormal(M):
     
     for i in range(0,M.shape[0],1):
         # voy calculando las proyecciones con todos los vectores en M
-        v = v + (M[i] @ z)/(M[i]@M[i])*M[i]
+        v = v + ((M[i] @ z)/(M[i]@M[i]))*M[i]
     
     # el vector ortogonal sera la resta entre el original y sus proyecciones en los vectores de M
     v_0 = z - v
@@ -270,10 +263,7 @@ def vector_ortonormal(M):
 # funcion que calcula las matrices U, E y V, necesarias para obtener la descomposicion
 # SVD de la matriz pasada por parametro
 def descomposicion_SVD(A):
-    U = np.array([])
-    E = np.zeros(A.shape) #matriz de ceros del mismo tamaño que A
-    V = np.array([])
-    
+       
     fil = A.shape[0] 
     col = A.shape[1]
     
@@ -284,43 +274,47 @@ def descomposicion_SVD(A):
     else:
         menor = fil
     
-    # realizo el metodo conocido para el valor menor de filas o columnas
-    for i in range(0, menor, 1):
-        v1 = primer_autovector(A)
-        u1 = primer_theta_u(A, v1)[1]
-        o1 = primer_theta_u(A, v1)[0]
+    # calculamos el primer elemento de cada matriz para definir su tamaño
+    v1 = primer_autovector(A)
+    u1 = primer_theta_u(A, v1)[1]
+    o1 = primer_theta_u(A, v1)[0]
+    
+    U = np.array([u1])
+    V = np.array([v1])
+    E = np.zeros(A.shape) #matriz de ceros del mismo tamaño que A
+    E[0][0] = o1
+    
+    A = a_prima(A, v1, o1, u1)
+    
+    # realiza el metodo conocido para el valor menor de filas o columnas
+    for i in range(1, menor, 1):
+        v = primer_autovector(A)
+        u = primer_theta_u(A, v1)[1]
+        o = primer_theta_u(A, v1)[0]
         
         
+        U = np.vstack((U, u)) #agrego el vector calculado a U
+        E[i][i] = o    # modifico la diagonal ii con el avalor hallado
+        V = np.vstack((V, v)) #agrego el autovector calculado a V
         
-        U = np.append(U, u1) #agrego el vector calculado a U
-        E[i][i] = o1    # modifico la diagonal ii con el avalor hallado
-        V = np.append(V, v1) #agrego el autovector calculado a V
-        
-        A = a_prima(A, v1, o1, u1)   # para aplicar el metodo de nuevo debo renombrar A con A'
+        A = a_prima(A, v, o, u)   # para aplicar el metodo de nuevo debo renombrar A con A'
     
     
     # hay que ver cual de las dos matrices (U o V) hay que rellenar con vectores
     if(fil > col):
-        V = V.reshape(col, col)
-        
         # a U le faltan vectores
-        U = U.reshape(col, fil)
         U = extender_matriz(U, fil)
-        U = U.T
         
     elif (fil < col):
         # a V le faltan vectores
-        V = V.reshape(fil, col)
         V = extender_matriz(V, col)
 
-        U = U.reshape(fil, fil)
-    
+    U = U.T    
     V = V.T
     # devolvemos las metrices calculadas
     return U, E, V
 
-
-    
+   
 """
 #UN EJEMPLO 
 
@@ -406,16 +400,13 @@ def graficar_columna(V, n):
     plt.close()
     
     
-matriz_0 = matrices_digitos[0].T
+matriz_0 = matrices_digitos[2].T
 desc = descomposicion_SVD(matriz_0)
 U_0 = desc[0]
-E_0 = desc[1]
 V_0 = desc[2]
-V_T = V_0.T
-
-M = U_0 @ E_0 @ V_T
+E = desc[1]
 
 
-
-
+graficar_columna(U_0, 0)
 graficar_columna(U_0, 1)
+graficar_columna(U_0, 2)
