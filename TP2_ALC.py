@@ -9,13 +9,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 encabezado = np.arange(0, 785, 1)
-datos = pd.read_csv("~/Downloads/mnist_train.csv", names=encabezado)
-df_testeo = datos = pd.read_csv("~/Downloads/mnist_test.csv", names=encabezado)
+datos = pd.read_csv("~/Descargas/mnist_train.csv", names=encabezado)
+df_testeo = pd.read_csv("~/Descargas/mnist_test.csv", names=encabezado)
 
 """
 EJERCICIO 1
 """
 #ITEM A
+
+#Funcion que, dado un df y un n, devuelve la fila n del df como un array 
+def fila_df(df, n):
+    fila = df.iloc[n:n+1]
+    fila = fila.to_numpy()
+    fila = fila[0] #to_numpy devuelve una matriz cuyo primer elemento es el array con los datos
+    
+    return fila
 
 #Funcion que dado un array correspondiente al gráfico de un dígito, devuelve su gráfico
 def graficar(v):
@@ -28,9 +36,7 @@ def graficar(v):
     plt.close()
 
 def imagen (n, datos):
-    fila = datos.iloc[n:n+1]
-    imagen = fila.to_numpy()
-    imagen = imagen[0] #to_numpy devuelve una matriz cuyo primer elemento es el array con los datos
+    imagen = fila_df(datos, n)
     graficar(imagen)
 
 #ITEM B
@@ -84,9 +90,7 @@ for i in range(1, 10, 1):
 #y una fila determinada, devuelve la predicción del dígito, en base a las distancias euclídeas
 def prediccion(promedios, test, n):
     pred = 0
-    fila = test.iloc[n:n+1]
-    fila = fila.to_numpy()
-    fila = fila[0]
+    fila = fila_df(test, n)
     dist_min = np.linalg.norm(fila - promedios[0])
     k = 1
     while k<10:
@@ -98,7 +102,7 @@ def prediccion(promedios, test, n):
     return pred
 
 
-def lista_predicciones(promedios, test):
+def lista_predicciones_promedio(promedios, test):
     predicciones = []
     l = test.shape[0]
     for i in range (0, l, 1):
@@ -110,7 +114,7 @@ def lista_predicciones(promedios, test):
 
 
 test_reducido = df_testeo.head(200)
-predicciones = lista_predicciones(matriz_promedios, test_reducido)
+predicciones = lista_predicciones_promedio(matriz_promedios, test_reducido)
 
 
 #ITEM B
@@ -167,21 +171,21 @@ def metodo_de_la_potencia(B):
     x0 = np.random.rand(columnas)
     x0 = x0/np.linalg.norm(x0)
     x1 = B@x0/np.linalg.norm(B@x0, 2)
-    k = 0
-    while x1@x0 < 1 and k<50:
+    
+    epsd = np.finfo(np.float64).eps
+    while x1@x0 < 1-epsd:
         v = B@x1/np.linalg.norm(B@x1, 2)
         x0 = x1
         x1 = v
-        k+=1
     
     return x1
 
 #Funcion que, dados una matriz A y su primer autovector, devuelve el valor de theta correspondiente
 def theta(A, v):
     Av = A@v
-    o = np.linalg.norm(Av, 2)
+    sv = np.linalg.norm(Av, 2)
     
-    return o
+    return sv
 
 #Funcion que, dados una matriz A y su primer autovector, devuelve el valor de u correspondiente
 def columna_u(A, v):
@@ -200,24 +204,6 @@ def a_prima(A, sv, u, v):
     A_prima = A - x
     
     return A_prima
-
-#Funcion que, dado un conjunto de vectores l.i, devuelve un nuevo vector tamibén l.i con todos ellos.
-def vector_li(vectores):
-   long = len(vectores[0])
-   
-   matriz = np.array(vectores) #dfeino una matriz con los vectores
-   #defino un vector cualquiera para verificar la independencia lineal del conjunto
-   v = np.random.rand(long)
-   #y una matriz que va a contener al vector buscado
-   matriz_con_vector = np.vstack((matriz, v))
-   
-   n = matriz_con_vector.shape[0]
-   
-   while np.linalg.matrix_rank(matriz_con_vector) < n:
-       v = np.random.rand(long)
-       matriz_con_vector = np.vstack((matriz, v))
-       
-   return v
  
 #Dados dos vectores u y v en R^n, esta función devuelve la proyección de u sobre v
 def proyeccion(u, v):
@@ -229,8 +215,9 @@ def proyeccion(u, v):
 #Funcion que, dado un conjunto de vectores de tamaño n, devuelve un nuevo vector de tamaño n
 #que será ortogonal a todos ellos y de norma = 1
 def vector_ortonormal(vectores):
-    #defino un vector linealmente independiente
-    vector_ortogonal = vector_li(vectores)
+    #defino un vector cualquiera
+    long = len(vectores[0])
+    vector_ortogonal = np.random.rand(long)
     
     #busco ortogonalizarlo
     for v in vectores:
@@ -364,6 +351,85 @@ def graficar_columna(V, n):
 matriz_0 = matrices_digitos[0]
 descomposicion = descomposicion_SVD(matriz_0)
 U_0 = descomposicion[0]
-graficar_columna(U_0, 0)
+E_0 = descomposicion[1]
+graficar_columna(U_0, 2)
 m = np.min(U_0)
 print(m)
+
+#ITEM E
+
+#Defino una función que, dada una matriz U de mxn y un k entero, devuelve una matriz de mxk 
+#de las primeras k columnas de U
+def tomar_columnas(U, k):
+    matriz = U[:, :k]
+    
+    return matriz
+
+#Dada una matriz U, la función devuelve la matriz que proyecta ortogonalmente
+#sobre la imagen de U
+def matriz_de_proyeccion(U):
+    U_transpuesta = U.T
+    matriz = U @ U_transpuesta
+    
+    return matriz
+
+#Funcion que, dado un vector v y una matriz U, devuelve la proyección ortogonal
+# de v sobre la imagen g
+def proyeccion_sobre_imagen(v, U):
+    matriz = matriz_de_proyeccion(U)
+    proy = matriz @ v
+    
+    return proy
+
+#Dada una imagen vectorizada x y una matriz U, la función devuelve el residuo, definido como la 
+#diferencia entre el vector x y la proyección ortogonal de x sobre la imagen de U
+def residuo(x, U):
+    residuo = x - proyeccion_sobre_imagen(x, U)
+    
+    return residuo
+
+#Función que, dada la lista de matrices U correspondientes a todos los dìgitos, una
+#imagen vectorizada x y un valor de rango k, devuelve la predicción del dìgito
+#para esa imagen en la aproximación del rango k
+
+def prediccion_U(lista_U, x, k):
+    #generamos una lista con la distancia para cada uno de los dígitos
+    distancias = []
+    for i in range(0, 10):
+        U = lista_U[i]
+        Uk = tomar_columnas(U, k)
+        res = residuo(x, Uk)
+        distancia = np.linalg.norm(res)
+        distancias.append(distancia)
+    
+    #Una vez creada la lista, buscamos el ìndice de su menor valor
+    menor_distancia = min(distancias)
+    prediccion = distancias.index(menor_distancia)
+    
+    return prediccion
+
+matrices_U = svd_lista(matrices_digitos)[0]
+
+#Dada la lista de matrices U, una imagen de testeo y un k entero, la función
+#devuelve una lista con las predicciones para la imagen en rango k
+def lista_predicciones_U(lista_U, test, k):
+    predicciones = []
+    l = test.shape[0]
+    for i in range(0, l):
+        imagen = fila_df(test, i)[1:] #defino el vector con la imagen del digito
+        pred = prediccion_U(lista_U, imagen, k)
+        predicciones.append(pred)
+        
+    return predicciones
+
+def lista_precisiones(lista_U, test):
+    precisiones = []
+    for k in range(1, 6):
+        predicciones = lista_predicciones_U(lista_U, test, k)
+        prec = precision(test, predicciones)
+        precisiones.append(prec)
+    
+    return precisiones
+    
+prueba = lista_precisiones(matrices_U, test_reducido)
+print(prueba)
